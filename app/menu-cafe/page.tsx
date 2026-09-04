@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Minus,
@@ -10,6 +11,7 @@ import {
   CheckCircle2,
   X,
 } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 interface MenuItem {
   id: string;
@@ -22,9 +24,12 @@ interface MenuItem {
 }
 
 export default function MenuCafePage() {
+  const router = useRouter();
+  // Menggunakan CartContext Global
+  const { cart, addToCart, updateQuantity, totalItems, totalPrice } = useCart();
+
   const [selectedCategory, setSelectedCategory] =
     useState<string>("Semua Menu");
-  const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const categories = [
@@ -98,37 +103,47 @@ export default function MenuCafePage() {
     setTimeout(() => setToastMessage(null), 2500);
   };
 
-  const updateQuantity = (id: string, delta: number, name: string) => {
-    setCart((prev) => {
-      const current = prev[id] || 0;
-      const next = current + delta;
-
-      if (next <= 0) {
-        const copy = { ...prev };
-        delete copy[id];
-        showToast(`"${name}" dihapus dari daftar`);
-        return copy;
-      }
-
-      if (delta > 0 && current === 0) {
-        showToast(`"${name}" ditambahkan`);
-      }
-
-      return { ...prev, [id]: next };
-    });
+  // Handler Tambah Produk ke Context Global
+  const handleAddItem = (item: MenuItem) => {
+    const existing = cart.find((c) => c.id === item.id);
+    if (!existing) {
+      addToCart({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        image: item.image,
+        category: item.category,
+      });
+    } else {
+      updateQuantity(item.id, 1);
+    }
+    showToast(`"${item.name}" ditambahkan ke keranjang`);
   };
 
-  // Logic filter: Tampilkan semua jika "Semua Menu", selain itu filter sesuai kategori
+  // Handler Kurangi/Hapus Produk dari Context Global
+  const handleRemoveItem = (item: MenuItem) => {
+    const existing = cart.find((c) => c.id === item.id);
+    if (existing) {
+      if (existing.quantity === 1) {
+        showToast(`"${item.name}" dihapus dari keranjang`);
+      }
+      updateQuantity(item.id, -1);
+    }
+  };
+
+  // Handler Tombol Pesan Sekarang
+  const handleOrderNow = () => {
+    showToast("Mengarahkan ke keranjang belanja...");
+    setTimeout(() => {
+      router.push("/cart");
+    }, 400);
+  };
+
+  // Logic filter kategori
   const filteredItems =
     selectedCategory === "Semua Menu"
       ? menuItems
       : menuItems.filter((item) => item.category === selectedCategory);
-
-  const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
-  const totalPrice = menuItems.reduce(
-    (sum, item) => sum + (cart[item.id] || 0) * item.price,
-    0,
-  );
 
   return (
     <main className="min-h-screen bg-[#FAF8F5] pb-28 relative">
@@ -139,7 +154,7 @@ export default function MenuCafePage() {
           <span>{toastMessage}</span>
           <button
             onClick={() => setToastMessage(null)}
-            className="ml-2 text-stone-400 hover:text-white"
+            className="ml-2 text-stone-400 hover:text-white cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -201,7 +216,8 @@ export default function MenuCafePage() {
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {filteredItems.map((item) => {
-                const qty = cart[item.id] || 0;
+                const cartItem = cart.find((c) => c.id === item.id);
+                const qty = cartItem ? cartItem.quantity : 0;
 
                 return (
                   <div
@@ -244,9 +260,7 @@ export default function MenuCafePage() {
                         {qty === 0 ? (
                           <button
                             type="button"
-                            onClick={() =>
-                              updateQuantity(item.id, 1, item.name)
-                            }
+                            onClick={() => handleAddItem(item)}
                             className="w-8 h-8 bg-stone-100 hover:bg-[#631B00] hover:text-white text-stone-800 rounded-lg flex items-center justify-center transition cursor-pointer active:scale-95"
                           >
                             <Plus className="w-4 h-4" />
@@ -255,9 +269,7 @@ export default function MenuCafePage() {
                           <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-lg border border-stone-200">
                             <button
                               type="button"
-                              onClick={() =>
-                                updateQuantity(item.id, -1, item.name)
-                              }
+                              onClick={() => handleRemoveItem(item)}
                               className="w-6 h-6 bg-white hover:bg-stone-200 text-stone-800 rounded flex items-center justify-center transition cursor-pointer"
                             >
                               <Minus className="w-3 h-3" />
@@ -267,9 +279,7 @@ export default function MenuCafePage() {
                             </span>
                             <button
                               type="button"
-                              onClick={() =>
-                                updateQuantity(item.id, 1, item.name)
-                              }
+                              onClick={() => handleAddItem(item)}
                               className="w-6 h-6 bg-[#631B00] text-white rounded flex items-center justify-center transition cursor-pointer hover:bg-[#4d1500]"
                             >
                               <Plus className="w-3 h-3" />
@@ -312,7 +322,7 @@ export default function MenuCafePage() {
 
             <button
               type="button"
-              onClick={() => showToast("Pesanan berhasil dikirim ke kasir!")}
+              onClick={handleOrderNow}
               className="bg-[#631B00] hover:bg-[#4d1500] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl transition shadow-md active:scale-95 cursor-pointer"
             >
               Pesan Sekarang →

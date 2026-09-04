@@ -6,45 +6,73 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ShoppingBag, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
-// Conto Data Produk untuk Pencarian (Bisa kamu sesuaikan/ambil dari data/database kamu)
-const MOCK_PRODUCTS = [
+// Data produk asli Roti Mruyung (Katalog Roti, Pre-Order, Menu Cafe)
+const PRODUCTS_DATA = [
   {
     id: "1",
-    name: "Roti Sisir Mentega",
+    name: "Roti Sisir Mentega Special",
     price: 15000,
-    category: "Roti Klasik",
-    href: "/#roti-sisir",
+    category: "Katalog Roti",
+    href: "/",
   },
   {
     id: "2",
     name: "Roti Gambang Heritage",
     price: 18000,
-    category: "Roti Klasik",
-    href: "/#roti-gambang",
+    category: "Katalog Roti",
+    href: "/",
   },
   {
     id: "3",
-    name: "Kopi Susu Gula Aren",
+    name: "Roti Pisang Keju Super",
+    price: 16000,
+    category: "Katalog Roti",
+    href: "/",
+  },
+  {
+    id: "4",
+    name: "Roti Sobek Cokelat Keju",
+    price: 25000,
+    category: "Katalog Roti",
+    href: "/",
+  },
+  {
+    id: "5",
+    name: "Roti Daging Smoked Beef (Pack)",
+    price: 45000,
+    category: "Pre-Order",
+    href: "/pre-order",
+  },
+  {
+    id: "6",
+    name: "Paket Box Hantaran Roti",
+    price: 85000,
+    category: "Pre-Order",
+    href: "/pre-order",
+  },
+  {
+    id: "7",
+    name: "Kopi Susu Mruyung Gula Aren",
     price: 22000,
     category: "Menu Cafe",
     href: "/menu-cafe",
   },
   {
-    id: "4",
-    name: "Roti Sobek Cokelat",
-    price: 25000,
-    category: "Roti Sobek",
-    href: "/#roti-sobek",
-  },
-  {
-    id: "5",
-    name: "Espresso Single Shot",
-    price: 15000,
+    id: "8",
+    name: "Es Cokelat Mruyung",
+    price: 20000,
     category: "Menu Cafe",
     href: "/menu-cafe",
   },
   {
-    id: "6",
+    id: "9",
+    name: "Americano Ice / Hot",
+    price: 18000,
+    category: "Menu Cafe",
+    href: "/menu-cafe",
+  },
+  {
+    id: "10",
     name: "Matcha Latte Ice",
     price: 24000,
     category: "Menu Cafe",
@@ -71,7 +99,7 @@ export default function Navbar() {
   const searchResults =
     searchQuery.trim() === ""
       ? []
-      : MOCK_PRODUCTS.filter(
+      : PRODUCTS_DATA.filter(
           (item) =>
             item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.category.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -206,7 +234,7 @@ export default function Navbar() {
                   setIsSearchOpen(false);
                   setSearchQuery("");
                 }}
-                className="p-1 text-stone-400 hover:text-stone-700 rounded-lg"
+                className="p-1 text-stone-400 hover:text-stone-700 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -249,7 +277,8 @@ export default function Navbar() {
                 </div>
               ) : (
                 <div className="text-center py-8 text-stone-500 text-xs">
-                  Produk <span className="font-bold">"{searchQuery}"</span>{" "}
+                  Produk{" "}
+                  <span className="font-bold">&quot;{searchQuery}&quot;</span>{" "}
                   tidak ditemukan.
                 </div>
               )}
