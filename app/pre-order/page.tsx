@@ -1,15 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus, ShoppingBag, CheckCircle2, X } from "lucide-react";
+import Link from "next/link";
+import {
+  Plus,
+  Minus,
+  ShoppingBag,
+  CheckCircle2,
+  X,
+  ArrowRight,
+} from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 export default function PreOrderPage() {
   const [pickupDate, setPickupDate] = useState("2026-09-06");
   const [pickupTime, setPickupTime] = useState<"pagi" | "sore">("pagi");
   const [greetingCard, setGreetingCard] = useState("");
 
-  // State Interaktif
-  const [cart, setCart] = useState<{ [key: string]: number }>({});
+  // Ambil state dan fungsi dari Context Global
+  const { cart, addToCart, updateQuantity, totalItems } = useCart();
+
   const [isScheduleSaved, setIsScheduleSaved] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -21,6 +31,7 @@ export default function PreOrderPage() {
         "Kombinasi sourdough klasik, baguette pedesaan, dan selai artisan pilihan.",
       price: 250000,
       image: "/images/roti-4.png",
+      category: "Pre-Order Hampers",
       badge: "BEST SELLER",
       badgeBg: "bg-[#A03C1B]",
     },
@@ -31,6 +42,7 @@ export default function PreOrderPage() {
         "Koleksi pastry sarapan premium kami. Termasuk croissant butter dan danish buah.",
       price: 165000,
       image: "/images/roti-2.png",
+      category: "Pre-Order Hampers",
       badge: null,
       badgeBg: "",
     },
@@ -41,6 +53,7 @@ export default function PreOrderPage() {
         "Pilihan kue kering artisan dan roti manis dengan aroma rempah otentik.",
       price: 320000,
       image: "/images/roti-3.png",
+      category: "Pre-Order Hampers",
       badge: "MUSIMAN",
       badgeBg: "bg-amber-700",
     },
@@ -51,6 +64,7 @@ export default function PreOrderPage() {
         "Aneka roti manis lembut dengan isian cokelat, keju, dan selai rumahan.",
       price: 180000,
       image: "/images/roti-1.png",
+      category: "Pre-Order Hampers",
       badge: "FAVORIT",
       badgeBg: "bg-emerald-700",
     },
@@ -61,6 +75,7 @@ export default function PreOrderPage() {
         "Perpaduan kue pastry renyah dan biji kopi pilihan khas Banyumas.",
       price: 275000,
       image: "/images/roti-5.png",
+      category: "Pre-Order Hampers",
       badge: null,
       badgeBg: "",
     },
@@ -71,6 +86,7 @@ export default function PreOrderPage() {
         "Roti ragi alami fermentasi panjang, sehat, renyah di luar dan lembut di dalam.",
       price: 210000,
       image: "/images/roti-6.png",
+      category: "Pre-Order Hampers",
       badge: "SEHAT",
       badgeBg: "bg-stone-700",
     },
@@ -81,6 +97,7 @@ export default function PreOrderPage() {
         "Porsi lengkap isi 12 varian roti terbaik Mruyung untuk acara keluarga.",
       price: 450000,
       image: "/images/roti-7.png",
+      category: "Pre-Order Hampers",
       badge: "HEMAT",
       badgeBg: "bg-[#A03C1B]",
     },
@@ -92,32 +109,23 @@ export default function PreOrderPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Handler Tambah/Kurang Cart
-  const updateQuantity = (id: string, delta: number, name: string) => {
-    setCart((prev) => {
-      const currentQty = prev[id] || 0;
-      const newQty = currentQty + delta;
-
-      if (newQty <= 0) {
-        const updatedCart = { ...prev };
-        delete updatedCart[id];
-        showToast(`"${name}" dihapus dari daftar`);
-        return updatedCart;
-      }
-
-      if (delta > 0 && currentQty === 0) {
-        showToast(`"${name}" ditambahkan ke pesanan`);
-      }
-
-      return { ...prev, [id]: newQty };
+  // Handler Tambah Produk ke Context
+  const handleAddItem = (item: (typeof hampersList)[0]) => {
+    addToCart({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      category: item.category,
     });
+    showToast(`"${item.name}" ditambahkan ke pesanan`);
   };
 
-  // Hitung Total Produk & Harga
-  const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  const totalPrice = hampersList.reduce((sum, item) => {
-    return sum + (cart[item.id] || 0) * item.price;
-  }, 0);
+  // Hitung Total Harga
+  const totalPrice = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
   const handleApplySchedule = (e: React.FormEvent) => {
     e.preventDefault();
@@ -281,7 +289,8 @@ export default function PreOrderPage() {
             {/* Grid Koleksi */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               {hampersList.map((item) => {
-                const qty = cart[item.id] || 0;
+                const cartItem = cart.find((i) => i.id === item.id);
+                const qty = cartItem ? cartItem.quantity : 0;
 
                 return (
                   <div
@@ -328,9 +337,7 @@ export default function PreOrderPage() {
                         {qty === 0 ? (
                           <button
                             type="button"
-                            onClick={() =>
-                              updateQuantity(item.id, 1, item.name)
-                            }
+                            onClick={() => handleAddItem(item)}
                             className="w-8 h-8 bg-stone-100 hover:bg-[#A03C1B] hover:text-white text-stone-700 rounded-lg flex items-center justify-center transition cursor-pointer active:scale-95"
                           >
                             <Plus className="w-4 h-4" />
@@ -339,9 +346,7 @@ export default function PreOrderPage() {
                           <div className="flex items-center gap-2 bg-stone-100 p-1 rounded-lg border border-stone-200">
                             <button
                               type="button"
-                              onClick={() =>
-                                updateQuantity(item.id, -1, item.name)
-                              }
+                              onClick={() => updateQuantity(item.id, -1)}
                               className="w-6 h-6 bg-white hover:bg-stone-200 text-stone-800 rounded flex items-center justify-center transition cursor-pointer"
                             >
                               <Minus className="w-3.5 h-3.5" />
@@ -351,9 +356,7 @@ export default function PreOrderPage() {
                             </span>
                             <button
                               type="button"
-                              onClick={() =>
-                                updateQuantity(item.id, 1, item.name)
-                              }
+                              onClick={() => updateQuantity(item.id, 1)}
                               className="w-6 h-6 bg-[#A03C1B] text-white rounded flex items-center justify-center transition cursor-pointer hover:bg-[#853014]"
                             >
                               <Plus className="w-3.5 h-3.5" />
@@ -394,13 +397,14 @@ export default function PreOrderPage() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => showToast("Lanjut ke Halaman Checkout...")}
+            {/* Tombol ke Halaman Keranjang / Checkout */}
+            <Link
+              href="/cart"
               className="bg-[#A03C1B] hover:bg-[#853014] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl transition shadow-md active:scale-95 cursor-pointer flex items-center gap-2"
             >
-              Checkout Pre-Order →
-            </button>
+              <span>Checkout Pre-Order</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       )}
