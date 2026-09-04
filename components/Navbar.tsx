@@ -6,8 +6,57 @@ import { usePathname } from "next/navigation";
 import { Menu, X, ShoppingBag, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
+// Conto Data Produk untuk Pencarian (Bisa kamu sesuaikan/ambil dari data/database kamu)
+const MOCK_PRODUCTS = [
+  {
+    id: "1",
+    name: "Roti Sisir Mentega",
+    price: 15000,
+    category: "Roti Klasik",
+    href: "/#roti-sisir",
+  },
+  {
+    id: "2",
+    name: "Roti Gambang Heritage",
+    price: 18000,
+    category: "Roti Klasik",
+    href: "/#roti-gambang",
+  },
+  {
+    id: "3",
+    name: "Kopi Susu Gula Aren",
+    price: 22000,
+    category: "Menu Cafe",
+    href: "/menu-cafe",
+  },
+  {
+    id: "4",
+    name: "Roti Sobek Cokelat",
+    price: 25000,
+    category: "Roti Sobek",
+    href: "/#roti-sobek",
+  },
+  {
+    id: "5",
+    name: "Espresso Single Shot",
+    price: 15000,
+    category: "Menu Cafe",
+    href: "/menu-cafe",
+  },
+  {
+    id: "6",
+    name: "Matcha Latte Ice",
+    price: 24000,
+    category: "Menu Cafe",
+    href: "/menu-cafe",
+  },
+];
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
   const pathname = usePathname();
   const { totalItems } = useCart();
 
@@ -17,6 +66,16 @@ export default function Navbar() {
     { name: "Menu Cafe", href: "/menu-cafe" },
     { name: "Lokasi Toko", href: "/lokasi" },
   ];
+
+  // Filter produk berdasarkan kata kunci pencarian
+  const searchResults =
+    searchQuery.trim() === ""
+      ? []
+      : MOCK_PRODUCTS.filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.category.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
 
   return (
     <header className="sticky top-0 z-50 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-200/80">
@@ -77,8 +136,10 @@ export default function Navbar() {
 
           {/* Ikon Aksi (Search & Cart) */}
           <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Tombol Search */}
             <button
               type="button"
+              onClick={() => setIsSearchOpen(true)}
               className="text-stone-600 hover:text-[#A03C1B] p-2 cursor-pointer transition"
               aria-label="Cari"
             >
@@ -122,6 +183,78 @@ export default function Navbar() {
               </Link>
             );
           })}
+        </div>
+      )}
+
+      {/* MODAL SEARCH POPUP */}
+      {isSearchOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-start justify-center pt-20 px-4">
+          <div className="bg-[#FAF8F5] w-full max-w-xl rounded-2xl shadow-2xl border border-stone-200 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
+            {/* Input Header */}
+            <div className="p-4 border-b border-stone-200 flex items-center gap-3 bg-white">
+              <Search className="w-5 h-5 text-stone-400 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cari roti, kopi, atau menu kesukaanmu..."
+                className="w-full bg-transparent text-sm text-stone-800 placeholder-stone-400 focus:outline-none"
+                autoFocus
+              />
+              <button
+                onClick={() => {
+                  setIsSearchOpen(false);
+                  setSearchQuery("");
+                }}
+                className="p-1 text-stone-400 hover:text-stone-700 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Hasil Pencarian */}
+            <div className="max-h-80 overflow-y-auto p-4">
+              {searchQuery.trim() === "" ? (
+                <div className="text-center py-6 text-stone-400 text-xs">
+                  Ketik nama makanan atau minuman untuk mencari.
+                </div>
+              ) : searchResults.length > 0 ? (
+                <div className="space-y-2">
+                  <p className="text-[10px] uppercase font-bold text-stone-400 tracking-wider mb-2">
+                    Hasil Pencarian ({searchResults.length})
+                  </p>
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product.id}
+                      href={product.href}
+                      onClick={() => {
+                        setIsSearchOpen(false);
+                        setSearchQuery("");
+                      }}
+                      className="flex items-center justify-between p-3 rounded-xl bg-white hover:bg-[#A03C1B]/5 border border-stone-100 transition group"
+                    >
+                      <div>
+                        <h4 className="text-sm font-semibold text-stone-800 group-hover:text-[#A03C1B]">
+                          {product.name}
+                        </h4>
+                        <span className="text-[10px] text-stone-400">
+                          {product.category}
+                        </span>
+                      </div>
+                      <span className="text-xs font-bold text-[#A03C1B]">
+                        Rp {product.price.toLocaleString("id-ID")}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-stone-500 text-xs">
+                  Produk <span className="font-bold">"{searchQuery}"</span>{" "}
+                  tidak ditemukan.
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </header>
