@@ -180,7 +180,7 @@ export default function LokasiPage() {
                   <span>Petunjuk Arah</span>
                 </a>
                 <a
-                  href="https://wa.me/6281234567890?text=Halo%20Roti%20Mruyung,%20saya%20mau%20tanya%20lokasi%20toko"
+                  href="https://wa.me/6281225000225?text=Halo%20Roti%20Mruyung,%20saya%20mau%20tanya%20lokasi%20toko"
                   target="_blank"
                   rel="noreferrer"
                   className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95 text-center border border-stone-200"
