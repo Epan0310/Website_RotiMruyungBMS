@@ -23,11 +23,12 @@ interface MenuItem {
 
 export default function MenuCafePage() {
   const [selectedCategory, setSelectedCategory] =
-    useState<string>("Kopi Mruyung");
+    useState<string>("Semua Menu");
   const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const categories = [
+    "Semua Menu",
     "Kopi Mruyung",
     "Non-Kopi & Mendoan",
     "Makanan Berat",
@@ -117,9 +118,12 @@ export default function MenuCafePage() {
     });
   };
 
-  const filteredItems = menuItems.filter(
-    (item) => item.category === selectedCategory,
-  );
+  // Logic filter: Tampilkan semua jika "Semua Menu", selain itu filter sesuai kategori
+  const filteredItems =
+    selectedCategory === "Semua Menu"
+      ? menuItems
+      : menuItems.filter((item) => item.category === selectedCategory);
+
   const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
   const totalPrice = menuItems.reduce(
     (sum, item) => sum + (cart[item.id] || 0) * item.price,
