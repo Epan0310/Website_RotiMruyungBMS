@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function Home() {
   const products = await prisma.product.findMany({
@@ -8,57 +9,79 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-[#FAF8F5] pb-16">
       {/* Hero Banner Section */}
-      <section className="max-w-7xl mx-auto my-6 px-6">
+      <section className="max-w-7xl mx-auto my-4 sm:my-6 px-4 sm:px-6">
         <div
-          className="relative h-[380px] rounded-2xl overflow-hidden bg-cover bg-center flex items-center justify-center text-center p-6 shadow-sm"
+          className="relative min-h-[340px] sm:h-[380px] md:h-[420px] rounded-2xl overflow-hidden bg-cover bg-center flex items-center justify-center text-center p-6 shadow-xs"
           style={{
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/images/hero-bg.png')`,
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/hero-bg.png')`,
           }}
         >
-          <div className="relative z-10 max-w-xl text-white">
-            <h2 className="font-serif text-3xl md:text-4xl font-normal tracking-wide leading-tight mb-3">
+          <div className="relative z-10 max-w-xl text-white space-y-4">
+            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-normal tracking-wide leading-tight">
               Roti Klasik Kehangatan Kota Lama Banyumas
             </h2>
-            <p className="text-stone-200 text-xs md:text-sm font-light mb-6">
+            <p className="text-stone-200 text-xs sm:text-sm font-light max-w-md mx-auto leading-relaxed">
               Dibuat segar setiap hari tanpa bahan pengawet. Pesan online, ambil
               tanpa antre.
             </p>
-            <div className="flex justify-center gap-3">
-              <button className="bg-[#A03C1B] hover:bg-[#853014] text-white text-xs font-medium px-5 py-2.5 rounded-md transition shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
+              <a
+                href="#katalog"
+                className="bg-[#A03C1B] hover:bg-[#853014] text-white text-xs font-semibold px-5 py-3 rounded-lg transition shadow-2xs text-center"
+              >
                 Pesan Roti Hari Ini
-              </button>
-              <button className="bg-white hover:bg-stone-100 text-stone-800 text-xs font-medium px-5 py-2.5 rounded-md transition shadow-sm">
+              </a>
+              <Link
+                href="/pre-order"
+                className="bg-white hover:bg-stone-100 text-stone-800 text-xs font-semibold px-5 py-3 rounded-lg transition shadow-2xs text-center"
+              >
                 Pre-Order Hampers
-              </button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
       {/* Catalog Grid Section */}
-      <section className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex justify-between items-end mb-6 border-b border-stone-200 pb-3">
-          <h3 className="font-serif text-2xl font-bold text-stone-800">
-            Katalog Roti Hari Ini
-          </h3>
-          <div className="flex gap-5 text-xs font-medium text-stone-500">
-            <button className="text-[#A03C1B] font-bold border-b-2 border-[#A03C1B] pb-1">
+      <section id="katalog" className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 border-b border-stone-200/80 pb-4 gap-4">
+          <div>
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-stone-800">
+              Katalog Roti Hari Ini
+            </h3>
+            <p className="text-xs text-stone-500 mt-1">
+              Dipanggang segar setiap pagi langsung dari oven.
+            </p>
+          </div>
+
+          {/* Horizontal Scroll Filter Kategori di HP */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
+            <button className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold bg-[#A03C1B] text-white shadow-2xs transition cursor-pointer">
               Semua Roti
             </button>
-            <button className="hover:text-stone-800">Roti Bluder</button>
-            <button className="hover:text-stone-800">Roti Sobek & Sisir</button>
-            <button className="hover:text-stone-800">Pastry & Cake</button>
-            <button className="hover:text-stone-800">Minuman</button>
+            <button className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 hover:bg-stone-200 transition cursor-pointer">
+              Roti Bluder
+            </button>
+            <button className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 hover:bg-stone-200 transition cursor-pointer">
+              Roti Sobek & Sisir
+            </button>
+            <button className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 hover:bg-stone-200 transition cursor-pointer">
+              Pastry & Cake
+            </button>
+            <button className="whitespace-nowrap px-4 py-2 rounded-full text-xs font-semibold bg-stone-100 text-stone-600 hover:bg-stone-200 transition cursor-pointer">
+              Minuman
+            </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {/* Product Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {products.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-lg border border-stone-200/80 overflow-hidden shadow-xs flex flex-col justify-between"
+              className="bg-white rounded-xl border border-stone-200/80 overflow-hidden shadow-2xs hover:shadow-md transition duration-200 flex flex-col justify-between"
             >
-              <div className="relative h-52 bg-stone-100 overflow-hidden">
+              <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.image}
@@ -66,9 +89,9 @@ export default async function Home() {
                   className="w-full h-full object-cover"
                 />
 
-                {/* Status Badge Custom Color */}
+                {/* Status Badge */}
                 <span
-                  className={`absolute top-2 left-2 text-white text-[9px] font-bold px-2 py-0.5 rounded-xs tracking-wider uppercase ${
+                  className={`absolute top-2.5 left-2.5 text-white text-[9px] font-bold px-2 py-0.5 rounded-xs tracking-wider uppercase shadow-2xs ${
                     item.status === "DIPROSES_OVEN"
                       ? "bg-amber-600"
                       : "bg-[#A03C1B]"
@@ -82,14 +105,14 @@ export default async function Home() {
 
               <div className="p-4 flex-1 flex flex-col justify-between">
                 <div>
-                  <h4 className="font-serif font-bold text-sm text-stone-800 mb-1">
+                  <h4 className="font-serif font-bold text-sm text-stone-800 mb-1 line-clamp-1">
                     {item.name}
                   </h4>
-                  <p className="text-xs text-stone-500 font-medium">
+                  <p className="text-xs font-bold text-[#A03C1B]">
                     Rp {item.price.toLocaleString("id-ID")}
                   </p>
                 </div>
-                <button className="mt-4 w-full bg-stone-100 hover:bg-[#A03C1B] hover:text-white text-stone-600 text-xs font-medium py-2 rounded transition-colors">
+                <button className="mt-4 w-full bg-stone-100 hover:bg-[#A03C1B] hover:text-white text-stone-700 text-xs font-semibold py-2 rounded-lg transition cursor-pointer">
                   + Tambah
                 </button>
               </div>
@@ -99,42 +122,42 @@ export default async function Home() {
       </section>
 
       {/* Steps Section */}
-      <section className="max-w-7xl mx-auto px-6 my-12">
-        <div className="bg-[#F4EFEA] rounded-2xl p-8 text-center border border-stone-200/60">
-          <h3 className="font-serif text-xl font-bold text-stone-800 mb-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 my-8 sm:my-12">
+        <div className="bg-[#F4EFEA] rounded-2xl p-6 sm:p-8 text-center border border-stone-200/60 shadow-2xs">
+          <h3 className="font-serif text-lg sm:text-xl font-bold text-stone-800 mb-6 sm:mb-8">
             Cara Pesan & Ambil Sendiri
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 bg-white rounded-full border border-stone-200 flex items-center justify-center text-[#A03C1B] mb-3 text-sm font-bold">
+              <div className="w-10 h-10 bg-white rounded-full border border-stone-200 flex items-center justify-center text-[#A03C1B] mb-3 text-sm font-bold shadow-2xs">
                 1
               </div>
               <h4 className="font-serif font-bold text-sm text-stone-800 mb-1">
-                1. Pilih & Bayar
+                Pilih & Bayar
               </h4>
-              <p className="text-xs text-stone-500 max-w-xs">
+              <p className="text-xs text-stone-500 max-w-xs leading-relaxed">
                 Pilih roti segar dari katalog dan selesaikan pembayaran online.
               </p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 bg-white rounded-full border border-stone-200 flex items-center justify-center text-[#A03C1B] mb-3 text-sm font-bold">
+              <div className="w-10 h-10 bg-white rounded-full border border-stone-200 flex items-center justify-center text-[#A03C1B] mb-3 text-sm font-bold shadow-2xs">
                 2
               </div>
               <h4 className="font-serif font-bold text-sm text-stone-800 mb-1">
-                2. Tentukan Jam Ambil
+                Tentukan Jam Ambil
               </h4>
-              <p className="text-xs text-stone-500 max-w-xs">
+              <p className="text-xs text-stone-500 max-w-xs leading-relaxed">
                 Pilih waktu yang nyaman untuk Anda mengambil pesanan hari ini.
               </p>
             </div>
             <div className="flex flex-col items-center">
-              <div className="w-10 h-10 bg-white rounded-full border border-stone-200 flex items-center justify-center text-[#A03C1B] mb-3 text-sm font-bold">
+              <div className="w-10 h-10 bg-white rounded-full border border-stone-200 flex items-center justify-center text-[#A03C1B] mb-3 text-sm font-bold shadow-2xs">
                 3
               </div>
               <h4 className="font-serif font-bold text-sm text-stone-800 mb-1">
-                3. Ambil di Counter Express
+                Ambil di Counter Express
               </h4>
-              <p className="text-xs text-stone-500 max-w-xs">
+              <p className="text-xs text-stone-500 max-w-xs leading-relaxed">
                 Tunjukkan bukti pesanan dan ambil tanpa perlu antre panjang.
               </p>
             </div>
