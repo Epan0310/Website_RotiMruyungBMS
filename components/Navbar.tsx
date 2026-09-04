@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ShoppingBag, Search } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { totalItems } = useCart(); // Mengambil jumlah total barang secara otomatis
 
   const navItems = [
     { name: "Katalog Roti", href: "/" },
@@ -53,7 +55,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Menu Link Desktop dengan Indikator Active */}
+          {/* Menu Link Desktop */}
           <div className="hidden md:flex items-center space-x-8 text-sm font-medium">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -74,27 +76,33 @@ export default function Navbar() {
           </div>
 
           {/* Ikon Aksi (Search & Cart) */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               type="button"
-              className="text-stone-600 hover:text-[#A03C1B] p-2"
+              className="text-stone-600 hover:text-[#A03C1B] p-2 cursor-pointer transition"
+              aria-label="Cari"
             >
               <Search className="w-5 h-5" />
             </button>
-            <button
-              type="button"
-              className="relative text-stone-600 hover:text-[#A03C1B] p-2"
+
+            {/* Tombol Keranjang (HTML disederhanakan agar posisi badge presisi) */}
+            <Link
+              href="/cart"
+              className="relative p-2 text-stone-700 hover:text-[#A03C1B] transition flex items-center justify-center cursor-pointer"
+              aria-label="Keranjang Belanja"
             >
               <ShoppingBag className="w-5 h-5" />
-              <span className="absolute top-1 right-1 bg-[#A03C1B] text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                0
-              </span>
-            </button>
+              {totalItems > 0 && (
+                <span className="absolute top-0.5 right-0.5 bg-[#631B00] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-[#FAF8F5] animate-in zoom-in-50">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* Drawer Menu Mobile dengan Indikator Active */}
+      {/* Drawer Menu Mobile */}
       {isOpen && (
         <div className="md:hidden bg-[#FAF8F5] border-b border-stone-200 px-4 pt-3 pb-6 space-y-2 shadow-lg">
           {navItems.map((item) => {
